@@ -1,12 +1,13 @@
 package auth
 
 import (
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
-	"errors"
 )
 
-//GetAPIKey extracts the API key from the request header
+// GetAPIKey extracts the API key from the request header
 func GetAPIKey(headers http.Header) (string, error) {
 	val := headers.Get("Authorization")
 	if val == "" {
@@ -14,11 +15,12 @@ func GetAPIKey(headers http.Header) (string, error) {
 	}
 
 	vals := strings.Split(val, " ")
+	fmt.Println(vals)
 	if len(vals) != 2 {
 		return "", errors.New("malformed auth header")
 	}
 	if vals[0] != "ApiKey" {
 		return "", errors.New("malformed first part of auth header")
 	}
-	return vals[1], nil	
+	return vals[1], nil
 }
