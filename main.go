@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,14 +10,37 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	"github.com/CodeEzard/RSSAggregator/internal/database" // Adjust the import path as necessary
+	_ "github.com/lib/pq"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	godotenv.Load()
 
-	portString := os.Getenv("PORT")
-	if portString == "" {
+	poststring := os.Getenv("PORT")
+	if poststring == "" {
 		log.Fatal("PORT environment variable is not set")
+	}
+
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB_URL environment variable is not set")
+	}
+
+    
+
+	conn, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal("Can't connect to database:", err)
+	}
+
+
+	apiConfig := &apiConfig{
+		DB: database.New(conn),
 	}
 
 	router := chi.NewRouter()
@@ -33,19 +57,24 @@ func main() {
     v1Router := chi.NewRouter()
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/err", handlerErr)
+	v1Router.Post("/users", apiConfig.handlerCreateUser)
+	v1Router.Get("/users", apiConfig.middlewareAuth(apiConfig.handlerGetUser))
+	v1Router.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreateFeed))
+	v1Router.Get("/feeds", apiConfig.handlerGetFeeds)
+	v1Router.Post("/feed_follows", apiConfig.middlewareAuth(apiConfig.handlerCreateFeedFollow))
 
 	router.Mount("/v1/", v1Router)
 
 	srv := &http.Server {
 		Handler: router,
-		Addr: ":" + portString,
+		Addr: ":" + poststring,
 	}
-    
-	log.Printf("Starting server on port %v", portString)
-	err := srv.ListenAndServe()
-	if err != nil{
+
+	log.Printf("Starting server on port %v", poststring)
+	err = srv.ListenAndServe()
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Port:", portString)
+	fmt.Println("Port:", poststring)
 }
