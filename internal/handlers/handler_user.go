@@ -43,6 +43,9 @@ func (apiConfig *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Reques
 }
 
 func (apiConfig *apiConfig) handlerGetPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
+
+	clean := r.URL.Query().Get("clean") == "true"
+
 	posts, err := apiConfig.DB.GetPostsForUser(r.Context(), database.GetPostsForUserParams{
 		UserID: user.ID,
 		Limit:  10,
@@ -52,5 +55,24 @@ func (apiConfig *apiConfig) handlerGetPostsForUser(w http.ResponseWriter, r *htt
 		return
 	}
 
-	respondWithJSON(w, 200, databasePostsToPosts(posts))
+	// Clean posts before sending response
+    cleanPosts := make([]CleanPost, len(posts))
+    for i, post := range posts {
+        cleanPosts[i] = CleanPost{
+            ID:             post.ID, 
+            CreatedAt:      post.CreatedAt,
+            UpdatedAt:      post.UpdatedAt,
+            Title:          cleanTitle(post.Title),
+            Description:    cleanPostDescription(post.Description),
+            PublishedAt:    post.PublishedAt,
+            ApplicationUrl: post.Url,
+            CompanyID:      post.FeedID,
+        }
+    }
+
+    if clean {
+        respondWithJSON(w, 200, cleanPosts)
+    } else {
+        respondWithJSON(w, 200, databasePostsToPosts(posts))
+    }
 }

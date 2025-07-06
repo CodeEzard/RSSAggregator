@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
-
 	"github.com/CodeEzard/RSSAggregator/internal/database" // Adjust the import path as necessary
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
@@ -30,6 +30,14 @@ func main() {
 	dbURL := os.Getenv("DB_URL")
 	if dbURL == "" {
 		log.Fatal("DB_URL environment variable is not set")
+	}
+
+	if !strings.Contains(dbURL, "sslmode=") {
+    	if strings.Contains(dbURL, "?") {
+        	dbURL += "&sslmode=disable"
+    	} else {
+        	dbURL += "?sslmode=disable"
+    	}
 	}
 
 	conn, err := sql.Open("postgres", dbURL)

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/CodeEzard/RSSAggregator/internal/database"
@@ -122,3 +123,28 @@ func databasePostsToPosts(dbPosts []database.Post) []Post {
 	}
 	return posts
 }	
+
+type CleanPost struct {
+    ID             uuid.UUID `json:"id"`
+    CreatedAt      time.Time `json:"created_at"`
+    UpdatedAt      time.Time `json:"updated_at"`
+    Title          string    `json:"title"`
+    Description    string    `json:"description"`
+    PublishedAt    time.Time `json:"posted_at"`
+    ApplicationUrl string    `json:"application_url"`
+    CompanyID      uuid.UUID `json:"company_id"`
+}
+
+func cleanPostDescription(desc sql.NullString) string {
+    if !desc.Valid {
+        return ""
+    }
+    
+    cleaned := cleanDescription(desc.String)
+    
+    // Limit to first 200 characters for API response
+    if len(cleaned) > 200 {
+        return cleaned[:200] + "..."
+    }
+    return cleaned
+}
