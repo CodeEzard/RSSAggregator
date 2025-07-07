@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/CodeEzard/RSSAggregator/internal/database" // Adjust the import path as necessary
+	"github.com/CodeEzard/RSSAggregator/internal/utils"
+	"github.com/CodeEzard/RSSAggregator/internal/models"
 )
 
 func (apiConfig *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +22,7 @@ func (apiConfig *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Req
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON:%v", err))
+		utils.RespondWithError(w, 400, fmt.Sprintf("Error parsing JSON:%v", err))
 		return
 	}
 
@@ -31,15 +33,15 @@ func (apiConfig *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Req
 		Name:     params.Name,
 	})
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error creating user: %v", err))
+		utils.RespondWithError(w, 400, fmt.Sprintf("Error creating user: %v", err))
 		return
 	}
 
-	respondWithJSON(w, 201, databaseUserToUser(user))
+	utils.RespondWithJSON(w, 201, models.DatabaseUserToUser(user))
 }
 
 func (apiConfig *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJSON(w, 200, databaseUserToUser(user))	
+	utils.RespondWithJSON(w, 200, models.DatabaseUserToUser(user))
 }
 
 func (apiConfig *apiConfig) handlerGetPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -51,19 +53,19 @@ func (apiConfig *apiConfig) handlerGetPostsForUser(w http.ResponseWriter, r *htt
 		Limit:  10,
 	})
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error getting posts for user: %v", err))
+		utils.RespondWithError(w, 400, fmt.Sprintf("Error getting posts for user: %v", err))
 		return
 	}
 
 	// Clean posts before sending response
-    cleanPosts := make([]CleanPost, len(posts))
+    cleanPosts := make([]models.CleanPost, len(posts))
     for i, post := range posts {
-        cleanPosts[i] = CleanPost{
-            ID:             post.ID, 
+        cleanPosts[i] = models.CleanPost{
+            ID:             post.ID,
             CreatedAt:      post.CreatedAt,
             UpdatedAt:      post.UpdatedAt,
-            Title:          cleanTitle(post.Title),
-            Description:    cleanPostDescription(post.Description),
+            Title:          utils.CleanTitle(post.Title),
+            Description:    utils.CleanDescription(post.Description),
             PublishedAt:    post.PublishedAt,
             ApplicationUrl: post.Url,
             CompanyID:      post.FeedID,
@@ -71,8 +73,8 @@ func (apiConfig *apiConfig) handlerGetPostsForUser(w http.ResponseWriter, r *htt
     }
 
     if clean {
-        respondWithJSON(w, 200, cleanPosts)
+        utils.RespondWithJSON(w, 200, cleanPosts)
     } else {
-        respondWithJSON(w, 200, databasePostsToPosts(posts))
+        utils.RespondWithJSON(w, 200, models.DatabasePostsToPosts(posts))
     }
 }

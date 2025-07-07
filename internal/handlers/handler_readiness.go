@@ -1,9 +1,9 @@
-package main
-
+package handlers
 import (
-	"net/http"
+    "net/http"
+    "github.com/CodeEzard/RSSAggregator/internal/utils"
 )
 
-func handlerReadiness(w http.ResponseWriter, r *http.Request) {
-	respondWithJSON(w, 200, struct{}{})
+func HandlerReadiness(w http.ResponseWriter, r *http.Request) {
+    utils.RespondWithJSON(w, 200, struct{}{})
 }

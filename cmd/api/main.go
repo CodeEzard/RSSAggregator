@@ -8,16 +8,14 @@ import (
 	"os"
 	"strings"
 	"time"
+	"github.com/CodeEzard/RSSAggregator/internal/handlers"
+//	"github.com/CodeEzard/RSSAggregator/internal/scraper"
 	"github.com/CodeEzard/RSSAggregator/internal/database" // Adjust the import path as necessary
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
-
-type apiConfig struct {
-	DB *database.Queries
-}
 
 func main() {
 	godotenv.Load()
@@ -46,11 +44,11 @@ func main() {
 	}
 
 	db := database.New(conn)
-	apiConfig := &apiConfig{
+	apiConfig := &handlers.ApiConfig{
 		DB: database.New(conn),
 	}
 
-	go startScraping(db, 10, time.Minute)
+	go scraper.StartScraping(db, 10, time.Minute)
 
 	router := chi.NewRouter()
 
@@ -64,8 +62,8 @@ func main() {
 	}))
 
 	v1Router := chi.NewRouter()
-	v1Router.Get("/healthz", handlerReadiness)
-	v1Router.Get("/err", handlerErr)
+	v1Router.Get("/healthz", handlers.HandlerReadiness)
+	v1Router.Get("/err", handlers.HandlerErr)
 	v1Router.Post("/users", apiConfig.handlerCreateUser)
 	v1Router.Get("/users", apiConfig.middlewareAuth(apiConfig.handlerGetUser))
 	v1Router.Post("/feeds", apiConfig.middlewareAuth(apiConfig.handlerCreateFeed))

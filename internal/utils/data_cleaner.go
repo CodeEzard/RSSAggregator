@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
     "html"
@@ -6,17 +6,17 @@ import (
     "strings"
 )
 
-func cleanJobData(title, description string) (string, string) {
+func CleanJobData(title, description string) (string, string) {
     // Clean title
-    cleanTitle := cleanTitle(title)
-    
-    // Clean description  
-    cleanDescription := cleanDescription(description)
-    
+    cleanTitle := CleanTitle(title)
+
+    // Clean description
+    cleanDescription := CleanDescription(description)
+
     return cleanTitle, cleanDescription
 }
 
-func cleanTitle(title string) string {
+func CleanTitle(title string) string {
     title = strings.ReplaceAll(title, "\n", "")
     title = strings.ReplaceAll(title, "\t", "")
 
@@ -25,7 +25,7 @@ func cleanTitle(title string) string {
     return title
 }
 
-func cleanDescription(description string) string {
+func CleanDescription(description string) string {
     description = html.UnescapeString(description)
     
     htmlTagRegex := regexp.MustCompile(`<[^>]*>`)

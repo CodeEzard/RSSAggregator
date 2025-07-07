@@ -1,9 +1,9 @@
-package main
+package models
 
 import (
 	"database/sql"
 	"time"
-
+	"github.com/CodeEzard/RSSAggregator/internal/utils"
 	"github.com/CodeEzard/RSSAggregator/internal/database"
 	"github.com/google/uuid"
 )
@@ -16,7 +16,7 @@ type User struct {
 	APIKey    string    `json:"api_key"`
 }
 
-func databaseUserToUser(dbUser database.User) User {
+func DatabaseUserToUser(dbUser database.User) User {
 	return User{
 		ID:        dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
@@ -35,7 +35,7 @@ type Feed struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func databaseFeedToFeed(dbFeed database.Feed) Feed {
+func DatabaseFeedToFeed(dbFeed database.Feed) Feed {
 	return Feed{
 		ID:        dbFeed.ID,
 		CreatedAt: dbFeed.CreatedAt,	
@@ -46,10 +46,10 @@ func databaseFeedToFeed(dbFeed database.Feed) Feed {
 	}
 }
 
-func databaseFeedsToFeeds(dbFeeds []database.Feed) []Feed {
+func DatabaseFeedsToFeeds(dbFeeds []database.Feed) []Feed {
 	 feeds := []Feed{}
 	 for _, dbFeed := range dbFeeds {
-         feeds = append(feeds, databaseFeedToFeed(dbFeed))
+         feeds = append(feeds, DatabaseFeedToFeed(dbFeed))
 	 }
 	 return feeds
 }
@@ -62,7 +62,7 @@ type FeedFollow struct {
 	FeedID   uuid.UUID   `json:"feed_id"`
 }
 
-func databaseFeedFollowToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow {
+func DatabaseFeedFollowToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow {
 	return FeedFollow{
 		ID:        dbFeedFollow.ID,
 		CreatedAt: dbFeedFollow.CreatedAt,
@@ -72,18 +72,18 @@ func databaseFeedFollowToFeedFollow(dbFeedFollow database.FeedFollow) FeedFollow
 	}
 }
 
-func databaseFeedFollowsToFeedFollows(dbFeedFollows []database.FeedFollow) []FeedFollow {
+func DatabaseFeedFollowsToFeedFollows(dbFeedFollows []database.FeedFollow) []FeedFollow {
 	 feedFollows := []FeedFollow{}
 	 for _, dbFeedFollow := range dbFeedFollows {
-         feedFollows = append(feedFollows, databaseFeedFollowToFeedFollow(dbFeedFollow))
+         feedFollows = append(feedFollows, DatabaseFeedFollowToFeedFollow(dbFeedFollow))
 	 }
 	 return feedFollows
 }
 
-func databaseDeleteFeedFollowsToDeleteFeedFollows(dbFeedFollows []database.FeedFollow) []FeedFollow {
+func DatabaseDeleteFeedFollowsToDeleteFeedFollows(dbFeedFollows []database.FeedFollow) []FeedFollow {
 	 feedFollows := []FeedFollow{}
 	 for _, dbFeedFollow := range dbFeedFollows {
-         feedFollows = append(feedFollows, databaseFeedFollowToFeedFollow(dbFeedFollow))
+         feedFollows = append(feedFollows, DatabaseFeedFollowToFeedFollow(dbFeedFollow))
 	 }
 	 return feedFollows
 }
@@ -99,7 +99,7 @@ type Post struct {
 	FeedID      uuid.UUID      `json:"feed_id"`
 }
 
-func databasePostToPost(dbPost database.Post) Post {
+func DatabasePostToPost(dbPost database.Post) Post {
 	var description *string
 	if dbPost.Description.Valid {
 		description = &dbPost.Description.String
@@ -116,10 +116,10 @@ func databasePostToPost(dbPost database.Post) Post {
 	}
 }
 
-func databasePostsToPosts(dbPosts []database.Post) []Post {
+func DatabasePostsToPosts(dbPosts []database.Post) []Post {
 	posts := []Post{}
 	for _, dbPost := range dbPosts {
-		posts = append(posts, databasePostToPost(dbPost))
+		posts = append(posts, DatabasePostToPost(dbPost))
 	}
 	return posts
 }	
@@ -135,16 +135,20 @@ type CleanPost struct {
     CompanyID      uuid.UUID `json:"company_id"`
 }
 
-func cleanPostDescription(desc sql.NullString) string {
+func CleanPostDescription(desc sql.NullString) string {
     if !desc.Valid {
         return ""
     }
-    
-    cleaned := cleanDescription(desc.String)
-    
-    // Limit to first 200 characters for API response
-    if len(cleaned) > 200 {
-        return cleaned[:200] + "..."
-    }
-    return cleaned
+
+	cleaned := utils.CleanDescription(desc.String)
+	
+	// Limit to first 200 characters for API response
+	if len(cleaned) > 200 {
+		return cleaned[:200] + "..."
+	}
+	return cleaned
 }
+
+// cleanDescription removes unwanted characters or HTML tags from the description string.
+// cleanDescription removes unwanted characters or HTML tags from the description string.
+// This function is defined in utils and should be used directly as utils.StripHTML.

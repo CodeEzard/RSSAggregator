@@ -9,12 +9,12 @@ import (
 	"strings"
 	"sync"
 	"time"
-
+	"github.com/CodeEzard/RSSAggregator/pkg/Rss"
 	"github.com/CodeEzard/RSSAggregator/internal/database"
 	"github.com/google/uuid"
 )
 
-func startScraping(
+func StartScraping(
 	db *database.Queries,
 	concurrency int,
 	timeBetweenRequests time.Duration,
@@ -50,7 +50,7 @@ func scrapeFeed(db *database.Queries,wg *sync.WaitGroup, feed database.Feed) {
 		return
 	}
 
-	rssFeed, err := urlToFeed(feed.Url)
+	rssFeed, err := Rss.UrlToFeed(feed.Url)
 	if err != nil {
 		log.Println("Error fetching RSS feed:", err)
 		return

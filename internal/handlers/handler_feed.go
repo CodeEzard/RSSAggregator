@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -9,6 +9,8 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/CodeEzard/RSSAggregator/internal/database" // Adjust the import path as necessary
+	"github.com/CodeEzard/RSSAggregator/internal/utils"
+    "github.com/CodeEzard/RSSAggregator/internal/models"
 )
 
 func (apiConfig *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
@@ -21,7 +23,7 @@ func (apiConfig *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Req
 	params := parameters{}
 	err := decoder.Decode(&params)
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error parsing JSON:%v", err))
+		utils.RespondWithError(w, 400, fmt.Sprintf("Error parsing JSON:%v", err))
 		return
 	}
 
@@ -34,11 +36,11 @@ func (apiConfig *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Req
 		UserID:   user.ID,
 	})
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error creating feed: %v", err))
+		utils.RespondWithError(w, 400, fmt.Sprintf("Error creating feed: %v", err))
 		return
 	}
 
-	respondWithJSON(w, 201, databaseFeedToFeed(feed))
+	utils.RespondWithJSON(w, 201, models.DatabaseFeedToFeed(feed))
 }
 
 func (apiConfig *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) {
@@ -46,10 +48,10 @@ func (apiConfig *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Reque
 
 	feeds, err := apiConfig.DB.GetFeeds(r.Context())
 	if err != nil {
-		respondWithError(w, 400, fmt.Sprintf("Error creating feed: %v", err))
+		utils.RespondWithError(w, 400, fmt.Sprintf("Error creating feed: %v", err))
 		return
 	}
 
-	respondWithJSON(w, 201, databaseFeedsToFeeds(feeds))
+	utils.RespondWithJSON(w, 201, models.DatabaseFeedsToFeeds(feeds))
 }
 

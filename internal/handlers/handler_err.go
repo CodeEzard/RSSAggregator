@@ -1,10 +1,10 @@
-package main
+package handlers
 
 import (
 	"net/http"
-	"github.com/yourusername/RSSAggregator/internal/utils"
+	"github.com/CodeEzard/RSSAggregator/internal/utils"
 )
 
-func handlerErr(w http.ResponseWriter, r *http.Request) {
-	utils.RespondWithError(w, 400, "Something went wrong")
+func HandlerErr(w http.ResponseWriter, r *http.Request) {
+	utils.RespondWithError(w, "Something went wrong", http.StatusBadRequest)
 }
