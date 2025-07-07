@@ -1,4 +1,4 @@
-package main
+package Rss
 
 import (
 	"encoding/xml"

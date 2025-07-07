@@ -6,5 +6,5 @@ import (
 )
 
 func HandlerErr(w http.ResponseWriter, r *http.Request) {
-	utils.RespondWithError(w, "Something went wrong", http.StatusBadRequest)
+	utils.RespondWithError(w, http.StatusBadRequest, "Something went wrong")
 }

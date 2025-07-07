@@ -13,7 +13,7 @@ import (
     "github.com/CodeEzard/RSSAggregator/internal/models"
 )
 
-func (apiConfig *apiConfig) handlerCreateFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (APIConfig *APIConfig) HandlerCreateFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		FeedID uuid.UUID `json:"feed_id"`
 	}
@@ -26,7 +26,7 @@ func (apiConfig *apiConfig) handlerCreateFeedFollow(w http.ResponseWriter, r *ht
 		return
 	}
 
-	feedFollow, err := apiConfig.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
+	feedFollow, err := APIConfig.DB.CreateFeedFollow(r.Context(), database.CreateFeedFollowParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 		UpdatedAt: time.Now().UTC(),
@@ -41,8 +41,8 @@ func (apiConfig *apiConfig) handlerCreateFeedFollow(w http.ResponseWriter, r *ht
 	utils.RespondWithJSON(w, 201, models.DatabaseFeedFollowToFeedFollow(feedFollow))
 }
 
-func (apiConfig *apiConfig) handlerGetFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
-	
+func (apiConfig *APIConfig) HandlerGetFeedFollows(w http.ResponseWriter, r *http.Request, user database.User) {
+
 	feedFollows, err := apiConfig.DB.GetFeedFollows(r.Context(), user.ID)
 	if err != nil {
 		utils.RespondWithError(w, 400, fmt.Sprintf("Couldn't Get Feed Follows: %v", err))
@@ -52,7 +52,7 @@ func (apiConfig *apiConfig) handlerGetFeedFollows(w http.ResponseWriter, r *http
 	utils.RespondWithJSON(w, 201, models.DatabaseFeedFollowsToFeedFollows(feedFollows))
 }
 
-func (apiConfig *apiConfig) handlerDeleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+func (apiConfig *APIConfig) HandlerDeleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
 	feedFollowIDStr := chi.URLParam(r, "feedFollowID")
 	feedFollowID, err := uuid.Parse(feedFollowIDStr)
 	if err != nil {

@@ -13,7 +13,7 @@ import (
     "github.com/CodeEzard/RSSAggregator/internal/models"
 )
 
-func (apiConfig *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+func (apiConfig *APIConfig) HandlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
@@ -43,8 +43,7 @@ func (apiConfig *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Req
 	utils.RespondWithJSON(w, 201, models.DatabaseFeedToFeed(feed))
 }
 
-func (apiConfig *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request) {
-	
+func (apiConfig *APIConfig) HandlerGetFeeds(w http.ResponseWriter, r *http.Request) {
 
 	feeds, err := apiConfig.DB.GetFeeds(r.Context())
 	if err != nil {

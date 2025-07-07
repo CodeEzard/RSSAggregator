@@ -13,7 +13,7 @@ import (
 	"github.com/CodeEzard/RSSAggregator/internal/models"
 )
 
-func (apiConfig *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
+func (apiConfig *APIConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
 	}
@@ -40,11 +40,11 @@ func (apiConfig *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Req
 	utils.RespondWithJSON(w, 201, models.DatabaseUserToUser(user))
 }
 
-func (apiConfig *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
+func (apiConfig *APIConfig) HandlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
 	utils.RespondWithJSON(w, 200, models.DatabaseUserToUser(user))
 }
 
-func (apiConfig *apiConfig) handlerGetPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
+func (apiConfig *APIConfig) HandlerGetPostsForUser(w http.ResponseWriter, r *http.Request, user database.User) {
 
 	clean := r.URL.Query().Get("clean") == "true"
 

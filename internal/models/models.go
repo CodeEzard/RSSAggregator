@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"time"
 	"github.com/CodeEzard/RSSAggregator/internal/utils"
 	"github.com/CodeEzard/RSSAggregator/internal/database"
@@ -101,8 +100,9 @@ type Post struct {
 
 func DatabasePostToPost(dbPost database.Post) Post {
 	var description *string
-	if dbPost.Description.Valid {
-		description = &dbPost.Description.String
+	if dbPost.Description != "" {
+		temp := dbPost.Description
+		description = &temp
 	}
 	return Post{
 		ID: dbPost.ID,
@@ -135,12 +135,12 @@ type CleanPost struct {
     CompanyID      uuid.UUID `json:"company_id"`
 }
 
-func CleanPostDescription(desc sql.NullString) string {
-    if !desc.Valid {
+func CleanPostDescription(desc string) string {
+    if desc == "" {
         return ""
     }
 
-	cleaned := utils.CleanDescription(desc.String)
+	cleaned := utils.CleanDescription(desc)
 	
 	// Limit to first 200 characters for API response
 	if len(cleaned) > 200 {
